@@ -1,9 +1,29 @@
 import axios from 'axios';
+import { dfs_xy_conv } from './convert.js';
 
 // SERVER URL
 const BASE_URL = 'http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0';
 const GET_ULTRA_SRT_NCST = '/getUltraSrtNcst';
 const SERVICE_KEY = '7RzOAYDkB9qRHVsXHVLPuEAUsikSSpD4YqMjJ47VbykQRu+GF6nvvmzo6K72vQ3aIJBHN/1p2uSVEhJm7B01BA==';
+
+// 현재 사용자 위치 값 받아오기
+function getUserLoaction() {
+  return new Promise(resolve => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(position => {
+        console.log(position.coords.latitude);
+        console.log(position.coords.longitude);
+        resolve(position);
+      });
+    }
+  });
+}
+
+(() => {
+  getUserLoaction().then(position => {
+    console.log(`done ${position}`);
+  });
+})();
 
 // API를 통해 정보를 받아오기
 async function getWetherInfo() {
