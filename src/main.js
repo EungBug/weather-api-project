@@ -3,7 +3,7 @@ import { dfs_xy_conv } from './convert.js';
 
 // SERVER URL
 const BASE_URL = 'http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0';
-const GET_ULTRA_SRT_NCST = '/getUltraSrtNcst';
+const GET_ULTRA_SRT_NCST = '/getUltraSrtFcst';
 const SERVICE_KEY = '7RzOAYDkB9qRHVsXHVLPuEAUsikSSpD4YqMjJ47VbykQRu+GF6nvvmzo6K72vQ3aIJBHN/1p2uSVEhJm7B01BA==';
 
 // 격자 위경도 (기본값 사직동)
@@ -46,7 +46,7 @@ async function getWetherInfo() {
     params: {
       serviceKey: `${SERVICE_KEY}`,
       pageNo: '1',
-      numOfRow: '1000',
+      numOfRows: '1000',
       dataType: 'JSON',
       base_date: getToday(),
       base_time: getTime(),
@@ -55,7 +55,74 @@ async function getWetherInfo() {
     }
   });
 
-  console.log(res.data);
+  const data = res.data;
+  const items = data.response.body.items.item ?? [];
+  console.log(items);
+  parseWeatherData(items);
+}
+
+function parseWeatherData(datas) {
+  // T1H : 기온
+  // RN1 : 1시간 강수량
+  // UUU : 동서바람성분 동(+표기), 서(-표기)
+  // VVV : 남북바람성분 북(+표기), 남(-표기)
+  // REH : 습도
+  // PTY : 강수형태 (초단기) 없음(0), 비(1), 비/눈(2), 눈(3), 빗방울(5), 빗방울눈날림(6), 눈날림(7)
+  // VEC : 풍향
+  // WSD : 풍속
+  // SKY : 하늘 상태  코드 : 맑음(1), 구름많음(3), 흐림(4)
+
+  // 현재 시간의 데이터만 추출
+  const time = datas[0].fcstTime;
+  const nowDatas = datas.filter(data => {
+    if (data.fcstTime === time) {
+      return data;
+    }
+  });
+  console.log(nowDatas);
+
+  // 추출한 데이터를 카테고리와 값만 따로 객체로 생성
+  let weatherInfo = {};
+  nowDatas.forEach(data => {
+    weatherInfo[data.category] = data.fcstValue;
+  });
+
+  const tempEl = document.querySelector('.temp');
+  const imgEl = document.querySelector('img.wether-img');
+  tempEl.innerHTML = `${weatherInfo['T1H']}` + '&#8451;';
+  imgEl.src = getIconByWeather(weatherInfo['SKY'], weatherInfo['PTY'], weatherInfo['LGT'], time);
+}
+
+function getIconByWeather(sky, pty, lgt, time) {
+  let imgSrc = '';
+  const dayFlag = parseInt(time) > 1800 || parseInt(time) < 600 ? 'N' : 'D';
+
+  if (dayFlag === 'D') {
+    if (lgt !== '0') {
+      imgSrc = '/d_storm.png';
+    } else if (pty === '0' && sky === '0') {
+      imgSrc = '/d_sun.png';
+    } else if (pty === '0' && sky !== '0') {
+      imgSrc = '/d_coluds.png';
+    } else if (pty === '1' || pty === '5') {
+      imgSrc = '/d_rain.png';
+    } else {
+      imgSrc = '/d_snow.png';
+    }
+  } else {
+    if (lgt !== '0') {
+      imgSrc = '/n_storm.png';
+    } else if (pty === '0' && sky === '0') {
+      imgSrc = '/n_moon.png';
+    } else if (pty === '0' && sky !== '0') {
+      imgSrc = '/n_clouds.png';
+    } else if (pty === '1' || pty === '5') {
+      imgSrc = '/n_rain.png';
+    } else {
+      imgSrc = '/n_snow.png';
+    }
+  }
+  return imgSrc;
 }
 
 function getToday() {
@@ -68,8 +135,17 @@ function getToday() {
 
 function getTime() {
   const today = new Date();
-  const hours = today.getHours() < 9 ? `0${today.getHours()}` : String(today.getHours());
-  const minutes = today.getMinutes() < 9 ? `0${today.getMinutes()}` : String(today.getMinutes());
+  // 45분 이후 조회 가능
+  if (today.getMinutes() < 45) {
+    today.setHours(today.getHours() - 1);
+    today.setMinutes(30);
+  } else if (today.getMinutes() < 45) {
+    today.setMinutes(0);
+  }
+
+  let hours = today.getHours() < 9 ? `0${today.getHours()}` : String(today.getHours());
+  let minutes = today.getMinutes() < 9 ? `0${today.getMinutes()}` : String(today.getMinutes());
+
   return hours + minutes;
 }
 

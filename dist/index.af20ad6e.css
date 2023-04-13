@@ -25,7 +25,11 @@ h1 {
   background: #303234;
   border-radius: 20px;
   padding: 20px;
-  box-shadow: 9px 9px 16px #0006, -9px -9px 16px #49494966;
+  box-shadow: 10px 10px 20px #0006, -10px -10px 20px #49494966;
+}
+
+.temp-box:hover {
+  box-shadow: inset -10px -10px 20px #49494966, inset 10px 10px 20px #0006;
 }
 
 .temp-box p.time {
@@ -42,10 +46,16 @@ h1 {
   font-size: 16px;
 }
 
+.temp-box img.wether-img {
+  max-width: 100px;
+  max-height: 60px;
+  margin-bottom: 4px;
+}
+
 .temp-box .temp {
   color: #f18303;
   text-shadow: 5px 5px 4px #00000040, -5px -5px 4px #48535c59;
-  font-size: 40px;
+  font-size: 50px;
 }
 
 /*# sourceMappingURL=index.af20ad6e.css.map */
