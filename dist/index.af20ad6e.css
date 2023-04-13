@@ -5,8 +5,9 @@ body {
 h1 {
   text-align: center;
   color: #fff;
+  text-shadow: 5px 5px 4px #00000040, -5px -5px 4px #00000059;
   margin: 50px 0;
-  font-size: 40px;
+  font-size: 50px;
 }
 
 .container {
@@ -18,8 +19,8 @@ h1 {
 }
 
 .temp-box {
-  width: 145px;
-  height: 145px;
+  width: 200px;
+  height: 200px;
   box-sizing: border-box;
   background: #303234;
   border-radius: 20px;
@@ -27,9 +28,24 @@ h1 {
   box-shadow: 9px 9px 16px #0006, -9px -9px 16px #49494966;
 }
 
+.temp-box p.time {
+  color: #8e98a1;
+  text-shadow: 5px 5px 4px #00000040, -5px -5px 4px #48535c59;
+  margin-bottom: 6px;
+  font-size: 20px;
+}
+
+.temp-box p.location {
+  color: #03a9f1;
+  text-shadow: 3px 3px 2px #00000040, -3px -3px 2px #48535c59;
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
 .temp-box .temp {
   color: #f18303;
-  font-size: 30px;
+  text-shadow: 5px 5px 4px #00000040, -5px -5px 4px #48535c59;
+  font-size: 40px;
 }
 
 /*# sourceMappingURL=index.af20ad6e.css.map */

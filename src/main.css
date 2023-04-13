@@ -5,7 +5,8 @@ body {
 h1 {
   text-align: center;
   color: #fff;
-  font-size: 40px;
+  text-shadow: 5px 5px 4px rgba(0, 0, 0, 0.25), -5px -5px 4px rgba(0, 0, 0, 0.35);
+  font-size: 50px;
   margin: 50px 0;
 }
 
@@ -18,8 +19,8 @@ h1 {
 }
 
 .temp-box {
-  width: 145px;
-  height: 145px;
+  width: 200px;
+  height: 200px;
   background: #303234;
   box-shadow: 9px 9px 16px rgba(0, 0, 0, 0.4), -9px -9px 16px rgba(73, 73, 73, 0.4);
   border-radius: 20px;
@@ -27,7 +28,22 @@ h1 {
   padding: 20px;
 }
 
+.temp-box p.time {
+  color: #8e98a1;
+  text-shadow: 5px 5px 4px rgba(0, 0, 0, 0.25), -5px -5px 4px rgba(72, 83, 92, 0.35);
+  font-size: 20px;
+  margin-bottom: 6px;
+}
+
+.temp-box p.location {
+  color: #03a9f1;
+  text-shadow: 3px 3px 2px rgba(0, 0, 0, 0.25), -3px -3px 2px rgba(72, 83, 92, 0.35);
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
 .temp-box .temp {
   color: #f18303;
-  font-size: 30px;
+  text-shadow: 5px 5px 4px rgba(0, 0, 0, 0.25), -5px -5px 4px rgba(72, 83, 92, 0.35);
+  font-size: 40px;
 }
