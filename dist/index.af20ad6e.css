@@ -1,3 +1,35 @@
+body {
+  background-color: #303234;
+}
 
+h1 {
+  text-align: center;
+  color: #fff;
+  margin: 50px 0;
+  font-size: 40px;
+}
+
+.container {
+  width: 50%;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  display: flex;
+}
+
+.temp-box {
+  width: 145px;
+  height: 145px;
+  box-sizing: border-box;
+  background: #303234;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 9px 9px 16px #0006, -9px -9px 16px #49494966;
+}
+
+.temp-box .temp {
+  color: #f18303;
+  font-size: 30px;
+}
 
 /*# sourceMappingURL=index.af20ad6e.css.map */
