@@ -13,27 +13,46 @@ let ny = 127;
 // moment.js 로케일 설정
 moment.locale('en');
 
+const messageEl = document.querySelector('.message');
+const weatherBoxEl = document.querySelector('.temp-box');
+const loadingEl = document.querySelector('.loading-bar');
+
+// 다크모드
+const themeToggleEl = document.querySelector('input#toggle');
+// 기본 - 다크모드로
+document.documentElement.setAttribute('user-theme', 'dark');
+themeToggleEl.addEventListener('click', function (e) {
+  if (!e.target.checked) {
+    document.documentElement.setAttribute('user-theme', 'dark');
+  } else {
+    document.documentElement.setAttribute('user-theme', 'light');
+  }
+});
+
 // 현재 사용자 위치 값 받아오기
-function getUserLoaction() {
+function getUserLocation() {
+  loadingEl.classList.toggle('show');
   return new Promise(resolve => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(position => {
+    navigator.geolocation.getCurrentPosition(
+      position => {
         console.log(position.coords.latitude);
         console.log(position.coords.longitude);
         const convertXY = dfs_xy_conv('toXY', `${position.coords.latitude}`, `${position.coords.longitude}`);
         nx = convertXY.x;
         ny = convertXY.y;
         resolve();
-      });
-    } else {
-      // 기본 위치 값으로 불러온다.
-      resolve();
-    }
+      },
+      () => {
+        // 위치 권한이 허용되지 않은 경우
+        messageEl.classList.toggle('show');
+        resolve();
+      }
+    );
   });
 }
 
 (() => {
-  getUserLoaction().then(() => {
+  getUserLocation().then(() => {
     getWetherInfo();
   });
 })();
@@ -91,6 +110,12 @@ function parseWeatherData(datas) {
   const imgEl = document.querySelector('img.wether-img');
   tempEl.innerHTML = `${weatherInfo['T1H']}` + '&#8451;';
   imgEl.src = getIconByWeather(weatherInfo['SKY'], weatherInfo['PTY'], weatherInfo['LGT'], time);
+
+  setTimeout(() => {
+    messageEl.classList.remove('show');
+    loadingEl.classList.toggle('show');
+    weatherBoxEl.classList.toggle('show');
+  }, 2000);
 }
 
 function getIconByWeather(sky, pty, lgt, time) {
@@ -103,7 +128,7 @@ function getIconByWeather(sky, pty, lgt, time) {
     } else if (pty === '0' && sky === '0') {
       imgSrc = '/d_sun.png';
     } else if (pty === '0' && sky !== '0') {
-      imgSrc = '/d_coluds.png';
+      imgSrc = '/d_clouds.png';
     } else if (pty === '1' || pty === '5') {
       imgSrc = '/d_rain.png';
     } else {
@@ -147,6 +172,8 @@ function getTime() {
   let minutes = today.getMinutes() < 9 ? `0${today.getMinutes()}` : String(today.getMinutes());
 
   return hours + minutes;
+  // 밤 테스트
+  // return '0000';
 }
 
 function initTodayUI() {
@@ -156,6 +183,9 @@ function initTodayUI() {
 }
 
 initTodayUI();
+setInterval(() => {
+  initTodayUI();
+}, 1000);
 
 /*
   // queryString
