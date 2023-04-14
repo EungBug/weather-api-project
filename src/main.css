@@ -34,6 +34,7 @@ h1 {
   color: var(--color-title);
   text-shadow: 8px 8px 8px var(--text-shadow-color-right), -8px -8px 8px var(--text-shadow-color-left);
   font-size: 50px;
+  font-weight: 900;
   margin-top: 50px;
 }
 
@@ -102,7 +103,7 @@ input#toggle:checked::before {
   margin: 50px auto 0;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-content: space-between;
   position: relative;
   flex-wrap: wrap;
 }
@@ -120,6 +121,7 @@ input#toggle:checked::before {
   padding: 20px;
   opacity: 0;
   visibility: hidden;
+  margin-bottom: 40px;
 }
 
 .info-box.show {
@@ -133,7 +135,8 @@ input#toggle:checked::before {
 }
 
 .temp p.time,
-.prec p.title {
+.prec p.title,
+.humi p.title {
   color: var(--color-font);
   text-shadow: 3px 3px 2px var(--text-shadow-color-right), -3px -3px 2px var(--text-shadow-color-left);
   font-size: 20px;
@@ -171,8 +174,22 @@ input#toggle:checked::before {
   font-weight: 700;
 }
 
+/* 습도 */
+.humi img {
+  width: 40px;
+  height: 80px;
+}
+
+.humi .humidity {
+  color: #1bac20;
+  text-shadow: 3px 3px 2px var(--text-shadow-color-right), -3px -3px 2px var(--text-shadow-color-left);
+  font-size: 34px;
+  font-weight: 700;
+}
+
 /* Loading */
 .loading-bar {
+  width: 100%;
   justify-content: center;
   z-index: 1;
   display: none;

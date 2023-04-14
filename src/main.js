@@ -6,6 +6,8 @@ const BASE_URL = 'https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0';
 const GET_ULTRA_SRT_NCST = '/getUltraSrtFcst';
 const SERVICE_KEY = '7RzOAYDkB9qRHVsXHVLPuEAUsikSSpD4YqMjJ47VbykQRu+GF6nvvmzo6K72vQ3aIJBHN/1p2uSVEhJm7B01BA==';
 
+const today = new Date();
+
 // 격자 위경도 (기본값 사직동)
 let nx = 60;
 let ny = 127;
@@ -16,10 +18,12 @@ moment.locale('en');
 const messageEl = document.querySelector('.message');
 const tempBoxEl = document.querySelector('.info-box.temp');
 const percBoxEl = document.querySelector('.info-box.prec');
+const humiBoxEl = document.querySelector('.info-box.humi');
 const loadingEl = document.querySelector('.loading-bar');
 const tempEl = tempBoxEl.querySelector('.temperatures');
 const imgEl = tempBoxEl.querySelector('img.wether-img');
 const percEl = percBoxEl.querySelector('.precipitation');
+const humiEl = humiBoxEl.querySelector('.humidity');
 
 // 다크모드
 const themeToggleEl = document.querySelector('input#toggle');
@@ -63,6 +67,9 @@ function getUserLocation() {
 
 // API를 통해 정보를 받아오기
 async function getWetherInfo() {
+  // 조회때문에 시간 먼저
+  const time = getTime();
+  const date = getToday();
   const res = await axios({
     url: `${BASE_URL}${GET_ULTRA_SRT_NCST}`,
     method: 'GET',
@@ -71,8 +78,8 @@ async function getWetherInfo() {
       pageNo: '1',
       numOfRows: '1000',
       dataType: 'JSON',
-      base_date: getToday(),
-      base_time: getTime(),
+      base_date: date,
+      base_time: time,
       nx: nx,
       ny: ny
     }
@@ -115,12 +122,15 @@ function parseWeatherData(datas) {
   imgEl.src = getIconByWeather(weatherInfo['SKY'], weatherInfo['PTY'], weatherInfo['LGT'], time);
   // 강수량
   percEl.innerHTML = weatherInfo['RN1'];
+  // 습도
+  humiEl.innerHTML = weatherInfo['REH'];
 
   setTimeout(() => {
     messageEl.classList.remove('show');
     loadingEl.classList.toggle('show');
     tempBoxEl.classList.toggle('show');
     percBoxEl.classList.toggle('show');
+    humiBoxEl.classList.toggle('show');
   }, 2000);
 }
 
@@ -157,7 +167,6 @@ function getIconByWeather(sky, pty, lgt, time) {
 }
 
 function getToday() {
-  const today = new Date();
   const month = today.getMonth() + 1 < 9 ? `0${today.getMonth() + 1}` : String(today.getMonth() + 1);
   const day = today.getDate() < 9 ? `0${today.getDate()}` : String(today.getDate());
 
@@ -165,11 +174,15 @@ function getToday() {
 }
 
 function getTime() {
-  const today = new Date();
   // 45분 이후 조회 가능
   if (today.getMinutes() < 45) {
-    today.setHours(today.getHours() - 1);
-    today.setMinutes(30);
+    if (today.getHours() === 0) {
+      today.setDate(today.getDate() - 1);
+      today.setHours(23);
+    } else {
+      today.setHours(today.getHours() - 1);
+      today.setMinutes(30);
+    }
   } else if (today.getMinutes() < 45) {
     today.setMinutes(0);
   }
