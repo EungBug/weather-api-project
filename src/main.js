@@ -2,7 +2,7 @@ import axios from 'axios';
 import { dfs_xy_conv } from './convert.js';
 
 // SERVER URL
-const BASE_URL = 'http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0';
+const BASE_URL = 'https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0';
 const GET_ULTRA_SRT_NCST = '/getUltraSrtFcst';
 const SERVICE_KEY = '7RzOAYDkB9qRHVsXHVLPuEAUsikSSpD4YqMjJ47VbykQRu+GF6nvvmzo6K72vQ3aIJBHN/1p2uSVEhJm7B01BA==';
 
@@ -14,8 +14,12 @@ let ny = 127;
 moment.locale('en');
 
 const messageEl = document.querySelector('.message');
-const weatherBoxEl = document.querySelector('.temp-box');
+const tempBoxEl = document.querySelector('.info-box.temp');
+const percBoxEl = document.querySelector('.info-box.prec');
 const loadingEl = document.querySelector('.loading-bar');
+const tempEl = tempBoxEl.querySelector('.temperatures');
+const imgEl = tempBoxEl.querySelector('img.wether-img');
+const percEl = percBoxEl.querySelector('.precipitation');
 
 // 다크모드
 const themeToggleEl = document.querySelector('input#toggle');
@@ -106,15 +110,17 @@ function parseWeatherData(datas) {
     weatherInfo[data.category] = data.fcstValue;
   });
 
-  const tempEl = document.querySelector('.temp');
-  const imgEl = document.querySelector('img.wether-img');
+  // 기온
   tempEl.innerHTML = `${weatherInfo['T1H']}` + '&#8451;';
   imgEl.src = getIconByWeather(weatherInfo['SKY'], weatherInfo['PTY'], weatherInfo['LGT'], time);
+  // 강수량
+  percEl.innerHTML = weatherInfo['RN1'];
 
   setTimeout(() => {
     messageEl.classList.remove('show');
     loadingEl.classList.toggle('show');
-    weatherBoxEl.classList.toggle('show');
+    tempBoxEl.classList.toggle('show');
+    percBoxEl.classList.toggle('show');
   }, 2000);
 }
 
