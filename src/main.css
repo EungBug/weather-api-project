@@ -1,6 +1,7 @@
 /* 
   box-shadow 양수 : 오른쪽 아래, 음수 : 왼쪽 위
 */
+/* COMMON */
 :root[user-theme='light'] {
   --color-main: #efeef3;
   --color-font: #989ba2;
@@ -38,6 +39,20 @@ h1 {
   margin-top: 50px;
 }
 
+p.title {
+  color: var(--color-font);
+  text-shadow: 3px 3px 2px var(--text-shadow-color-right), -3px -3px 2px var(--text-shadow-color-left);
+  font-size: 20px;
+  font-weight: 500;
+}
+
+p.result {
+  text-shadow: 3px 3px 2px var(--text-shadow-color-right), -3px -3px 2px var(--text-shadow-color-left);
+  font-size: 34px;
+  font-weight: 700;
+}
+
+/* Content */
 /* 테마 토글 */
 input[type='checkbox'] {
   -webkit-appearance: none;
@@ -134,16 +149,6 @@ input#toggle:checked::before {
   box-shadow: inset -10px -10px 20px var(--shadow-color-left), inset 10px 10px 20px var(--shadow-color-right);
 }
 
-.temp p.time,
-.prec p.title,
-.humi p.title,
-.wind p.title {
-  color: var(--color-font);
-  text-shadow: 3px 3px 2px var(--text-shadow-color-right), -3px -3px 2px var(--text-shadow-color-left);
-  font-size: 20px;
-  font-weight: 500;
-}
-
 .temp .location {
   color: #03a9f1;
   text-shadow: 3px 3px 2px var(--text-shadow-color-right), -3px -3px 2px var(--text-shadow-color-left);
@@ -159,8 +164,6 @@ input#toggle:checked::before {
 .temp .temperatures {
   color: #f18303;
   text-shadow: 5px 5px 4px var(--text-shadow-color-right), -3px -3px 2px var(--text-shadow-color-left);
-  font-size: 40px;
-  font-weight: 700;
 }
 
 /* 강수량 */
@@ -170,9 +173,6 @@ input#toggle:checked::before {
 
 .prec .precipitation {
   color: #03a9f1;
-  text-shadow: 3px 3px 2px var(--text-shadow-color-right), -3px -3px 2px var(--text-shadow-color-left);
-  font-size: 34px;
-  font-weight: 700;
 }
 
 /* 습도 */
@@ -183,9 +183,6 @@ input#toggle:checked::before {
 
 .humi .humidity {
   color: #1bac20;
-  text-shadow: 3px 3px 2px var(--text-shadow-color-right), -3px -3px 2px var(--text-shadow-color-left);
-  font-size: 34px;
-  font-weight: 700;
 }
 
 /* 바람 */
@@ -196,9 +193,6 @@ input#toggle:checked::before {
 
 .wind .wind-value {
   color: #472fc1;
-  text-shadow: 3px 3px 2px var(--text-shadow-color-right), -3px -3px 2px var(--text-shadow-color-left);
-  font-size: 34px;
-  font-weight: 700;
 }
 
 /* Loading */

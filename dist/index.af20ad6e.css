@@ -35,6 +35,19 @@ h1 {
   font-weight: 900;
 }
 
+p.title {
+  color: var(--color-font);
+  text-shadow: 3px 3px 2px var(--text-shadow-color-right), -3px -3px 2px var(--text-shadow-color-left);
+  font-size: 20px;
+  font-weight: 500;
+}
+
+p.result {
+  text-shadow: 3px 3px 2px var(--text-shadow-color-right), -3px -3px 2px var(--text-shadow-color-left);
+  font-size: 34px;
+  font-weight: 700;
+}
+
 input[type="checkbox"] {
   -webkit-appearance: none;
   height: 40px;
@@ -126,13 +139,6 @@ input#toggle:checked:before {
   box-shadow: inset -10px -10px 20px var(--shadow-color-left), inset 10px 10px 20px var(--shadow-color-right);
 }
 
-.temp p.time, .prec p.title, .humi p.title, .wind p.title {
-  color: var(--color-font);
-  text-shadow: 3px 3px 2px var(--text-shadow-color-right), -3px -3px 2px var(--text-shadow-color-left);
-  font-size: 20px;
-  font-weight: 500;
-}
-
 .temp .location {
   color: #03a9f1;
   text-shadow: 3px 3px 2px var(--text-shadow-color-right), -3px -3px 2px var(--text-shadow-color-left);
@@ -148,8 +154,6 @@ input#toggle:checked:before {
 .temp .temperatures {
   color: #f18303;
   text-shadow: 5px 5px 4px var(--text-shadow-color-right), -3px -3px 2px var(--text-shadow-color-left);
-  font-size: 40px;
-  font-weight: 700;
 }
 
 .prec img {
@@ -158,9 +162,6 @@ input#toggle:checked:before {
 
 .prec .precipitation {
   color: #03a9f1;
-  text-shadow: 3px 3px 2px var(--text-shadow-color-right), -3px -3px 2px var(--text-shadow-color-left);
-  font-size: 34px;
-  font-weight: 700;
 }
 
 .humi img {
@@ -170,9 +171,6 @@ input#toggle:checked:before {
 
 .humi .humidity {
   color: #1bac20;
-  text-shadow: 3px 3px 2px var(--text-shadow-color-right), -3px -3px 2px var(--text-shadow-color-left);
-  font-size: 34px;
-  font-weight: 700;
 }
 
 .wind img {
@@ -182,9 +180,6 @@ input#toggle:checked:before {
 
 .wind .wind-value {
   color: #472fc1;
-  text-shadow: 3px 3px 2px var(--text-shadow-color-right), -3px -3px 2px var(--text-shadow-color-left);
-  font-size: 34px;
-  font-weight: 700;
 }
 
 .loading-bar {
