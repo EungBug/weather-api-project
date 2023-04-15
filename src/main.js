@@ -19,11 +19,13 @@ const messageEl = document.querySelector('.message');
 const tempBoxEl = document.querySelector('.info-box.temp');
 const percBoxEl = document.querySelector('.info-box.prec');
 const humiBoxEl = document.querySelector('.info-box.humi');
+const windBoxEl = document.querySelector('.info-box.wind');
 const loadingEl = document.querySelector('.loading-bar');
 const tempEl = tempBoxEl.querySelector('.temperatures');
 const imgEl = tempBoxEl.querySelector('img.wether-img');
 const percEl = percBoxEl.querySelector('.precipitation');
 const humiEl = humiBoxEl.querySelector('.humidity');
+const windEl = windBoxEl.querySelector('.wind-value');
 
 // 다크모드
 const themeToggleEl = document.querySelector('input#toggle');
@@ -79,7 +81,7 @@ async function getWetherInfo() {
       numOfRows: '1000',
       dataType: 'JSON',
       base_date: date,
-      base_time: time,
+      base_time: '2230',
       nx: nx,
       ny: ny
     }
@@ -123,7 +125,9 @@ function parseWeatherData(datas) {
   // 강수량
   percEl.innerHTML = weatherInfo['RN1'];
   // 습도
-  humiEl.innerHTML = weatherInfo['REH'];
+  humiEl.innerHTML = weatherInfo['REH'] + '%';
+  // 바람
+  windEl.innerHTML = `${parseWindDirection(weatherInfo['VEC'])} ${weatherInfo['WSD']}m/s`;
 
   setTimeout(() => {
     messageEl.classList.remove('show');
@@ -131,6 +135,7 @@ function parseWeatherData(datas) {
     tempBoxEl.classList.toggle('show');
     percBoxEl.classList.toggle('show');
     humiBoxEl.classList.toggle('show');
+    windBoxEl.classList.toggle('show');
   }, 2000);
 }
 
@@ -164,6 +169,56 @@ function getIconByWeather(sky, pty, lgt, time) {
     }
   }
   return imgSrc;
+}
+
+function parseWindDirection(value) {
+  const convertValue = Math.floor((parseInt(value) + 22.5 * 0.5) / 22.5);
+  let direction = '';
+  console.log(convertValue);
+  switch (convertValue) {
+    case 0:
+    case 16:
+      direction = '북향';
+      break;
+    case 1:
+    case 2:
+      direction = '북동향';
+      break;
+    case 3:
+      direction = '동북향';
+      break;
+    case 4:
+      direction = '동향';
+      break;
+    case 5:
+      direction = '동남향';
+      break;
+    case 6:
+    case 7:
+      direction = '남동향';
+      break;
+    case 8:
+      direction = '남향';
+      break;
+    case 9:
+    case 10:
+      direction = '남서향';
+      break;
+    case 11:
+      direction = '서남향';
+      break;
+    case 12:
+      direction = '서향';
+      break;
+    case 13:
+      direction = '서북향';
+      break;
+    case 14:
+    case 15:
+      direction = '북서향';
+      break;
+  }
+  return direction;
 }
 
 function getToday() {

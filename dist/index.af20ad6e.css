@@ -126,7 +126,7 @@ input#toggle:checked:before {
   box-shadow: inset -10px -10px 20px var(--shadow-color-left), inset 10px 10px 20px var(--shadow-color-right);
 }
 
-.temp p.time, .prec p.title, .humi p.title {
+.temp p.time, .prec p.title, .humi p.title, .wind p.title {
   color: var(--color-font);
   text-shadow: 3px 3px 2px var(--text-shadow-color-right), -3px -3px 2px var(--text-shadow-color-left);
   font-size: 20px;
@@ -170,6 +170,18 @@ input#toggle:checked:before {
 
 .humi .humidity {
   color: #1bac20;
+  text-shadow: 3px 3px 2px var(--text-shadow-color-right), -3px -3px 2px var(--text-shadow-color-left);
+  font-size: 34px;
+  font-weight: 700;
+}
+
+.wind img {
+  width: 60px;
+  height: 50px;
+}
+
+.wind .wind-value {
+  color: #472fc1;
   text-shadow: 3px 3px 2px var(--text-shadow-color-right), -3px -3px 2px var(--text-shadow-color-left);
   font-size: 34px;
   font-weight: 700;
