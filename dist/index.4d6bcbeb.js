@@ -557,18 +557,8 @@ function hmrAccept(bundle, id) {
 }
 
 },{}],"gLLPy":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-var _axios = require("axios");
-var _axiosDefault = parcelHelpers.interopDefault(_axios);
 var _convertJs = require("./convert.js");
-// SERVER URL
-const BASE_URL = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0";
-const GET_ULTRA_SRT_NCST = "/getUltraSrtFcst";
-const SERVICE_KEY = "7RzOAYDkB9qRHVsXHVLPuEAUsikSSpD4YqMjJ47VbykQRu+GF6nvvmzo6K72vQ3aIJBHN/1p2uSVEhJm7B01BA==";
-const today = new Date();
-// 격자 위경도 (기본값 사직동)
-let nx = 60;
-let ny = 127;
+var _weatherJs = require("./weather.js");
 // moment.js 로케일 설정
 moment.locale("en");
 const messageEl = document.querySelector(".message");
@@ -608,13 +598,167 @@ function getUserLocation() {
         });
     });
 }
+// 즉시실행 함수로 위치정보를 받아오고,
+// 응답을 파싱해서 UI에서 사용할 데이터로 가공한다.
 (()=>{
     getUserLocation().then(()=>{
-        getWetherInfo();
+        (0, _weatherJs.getWetherInfo)((weatherInfo)=>setWeatherInfo(weatherInfo));
     });
 })();
+function setWeatherInfo(weatherInfo) {
+    // 기온
+    tempEl.innerHTML = `${weatherInfo["T1H"]}` + "&#8451;";
+    imgEl.src = (0, _weatherJs.getIconByWeather)(weatherInfo["SKY"], weatherInfo["PTY"], weatherInfo["LGT"], weatherInfo["SKY"].fcstTime);
+    // 강수량
+    percEl.innerHTML = weatherInfo["RN1"];
+    // 습도
+    humiEl.innerHTML = weatherInfo["REH"] + "%";
+    // 바람
+    windEl.innerHTML = `${(0, _weatherJs.getWindDirection)(weatherInfo["VEC"])} ${weatherInfo["WSD"]}m/s`;
+    setTimeout(()=>{
+        messageEl.classList.remove("show");
+        loadingEl.classList.toggle("show");
+        tempBoxEl.classList.toggle("show");
+        percBoxEl.classList.toggle("show");
+        humiBoxEl.classList.toggle("show");
+        windBoxEl.classList.toggle("show");
+    }, 2000);
+}
+// 시간 출력
+function initTodayUI() {
+    const timeEl = document.querySelector("p.time");
+    timeEl.textContent = moment().format("LT");
+}
+initTodayUI();
+// 시간 카운트
+setInterval(()=>{
+    initTodayUI();
+}, 1000);
+
+},{"./convert.js":"eHKSp","./weather.js":"lwRzY"}],"eHKSp":[function(require,module,exports) {
+//
+// LCC DFS 좌표변환을 위한 기초 자료
+//
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+//
+// LCC DFS 좌표변환 ( code : "toXY"(위경도->좌표, v1:위도, v2:경도), "toLL"(좌표->위경도,v1:x, v2:y) )
+//
+parcelHelpers.export(exports, "dfs_xy_conv", ()=>dfs_xy_conv);
+var RE = 6371.00877; // 지구 반경(km)
+var GRID = 5.0; // 격자 간격(km)
+var SLAT1 = 30.0; // 투영 위도1(degree)
+var SLAT2 = 60.0; // 투영 위도2(degree)
+var OLON = 126.0; // 기준점 경도(degree)
+var OLAT = 38.0; // 기준점 위도(degree)
+var XO = 43; // 기준점 X좌표(GRID)
+var YO = 136; // 기1준점 Y좌표(GRID)
+function dfs_xy_conv(code, v1, v2) {
+    var DEGRAD = Math.PI / 180.0;
+    var RADDEG = 180.0 / Math.PI;
+    var re = RE / GRID;
+    var slat1 = SLAT1 * DEGRAD;
+    var slat2 = SLAT2 * DEGRAD;
+    var olon = OLON * DEGRAD;
+    var olat = OLAT * DEGRAD;
+    var sn = Math.tan(Math.PI * 0.25 + slat2 * 0.5) / Math.tan(Math.PI * 0.25 + slat1 * 0.5);
+    sn = Math.log(Math.cos(slat1) / Math.cos(slat2)) / Math.log(sn);
+    var sf = Math.tan(Math.PI * 0.25 + slat1 * 0.5);
+    sf = Math.pow(sf, sn) * Math.cos(slat1) / sn;
+    var ro = Math.tan(Math.PI * 0.25 + olat * 0.5);
+    ro = re * sf / Math.pow(ro, sn);
+    var rs = {};
+    if (code == "toXY") {
+        rs["lat"] = v1;
+        rs["lng"] = v2;
+        var ra = Math.tan(Math.PI * 0.25 + v1 * DEGRAD * 0.5);
+        ra = re * sf / Math.pow(ra, sn);
+        var theta = v2 * DEGRAD - olon;
+        if (theta > Math.PI) theta -= 2.0 * Math.PI;
+        if (theta < -Math.PI) theta += 2.0 * Math.PI;
+        theta *= sn;
+        rs["x"] = Math.floor(ra * Math.sin(theta) + XO + 0.5);
+        rs["y"] = Math.floor(ro - ra * Math.cos(theta) + YO + 0.5);
+    } else {
+        rs["x"] = v1;
+        rs["y"] = v2;
+        var xn = v1 - XO;
+        var yn = ro - v2 + YO;
+        ra = Math.sqrt(xn * xn + yn * yn);
+        if (sn < 0.0) ra;
+        var alat = Math.pow(re * sf / ra, 1.0 / sn);
+        alat = 2.0 * Math.atan(alat) - Math.PI * 0.5;
+        if (Math.abs(xn) <= 0.0) theta = 0.0;
+        else if (Math.abs(yn) <= 0.0) {
+            theta = Math.PI * 0.5;
+            if (xn < 0.0) theta;
+        } else theta = Math.atan2(xn, yn);
+        var alon = theta / sn + olon;
+        rs["lat"] = alat * RADDEG;
+        rs["lng"] = alon * RADDEG;
+    }
+    return rs;
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports) {
+exports.interopDefault = function(a) {
+    return a && a.__esModule ? a : {
+        default: a
+    };
+};
+exports.defineInteropFlag = function(a) {
+    Object.defineProperty(a, "__esModule", {
+        value: true
+    });
+};
+exports.exportAll = function(source, dest) {
+    Object.keys(source).forEach(function(key) {
+        if (key === "default" || key === "__esModule" || dest.hasOwnProperty(key)) return;
+        Object.defineProperty(dest, key, {
+            enumerable: true,
+            get: function() {
+                return source[key];
+            }
+        });
+    });
+    return dest;
+};
+exports.export = function(dest, destName, get) {
+    Object.defineProperty(dest, destName, {
+        enumerable: true,
+        get: get
+    });
+};
+
+},{}],"lwRzY":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
 // API를 통해 정보를 받아오기
-async function getWetherInfo() {
+parcelHelpers.export(exports, "getWetherInfo", ()=>getWetherInfo);
+parcelHelpers.export(exports, "getIconByWeather", ()=>getIconByWeather);
+parcelHelpers.export(exports, "getWindDirection", ()=>getWindDirection) /*
+  // queryString
+  let queryParams = '?' + encodeURIComponent('serviceKey') + '=' + `${SERVICE_KEY}`; 
+  queryParams += '&' + encodeURIComponent('pageNo') + '=' + encodeURIComponent('1'); 
+  queryParams += '&' + encodeURIComponent('numOfRows') + '=' + encodeURIComponent('1000'); 
+  queryParams += '&' + encodeURIComponent('dataType') + '=' + encodeURIComponent('JSON'); 
+  queryParams += '&' + encodeURIComponent('base_date') + '=' + encodeURIComponent('20230413'); 
+  queryParams += '&' + encodeURIComponent('base_time') + '=' + encodeURIComponent('0600');
+  queryParams += '&' + encodeURIComponent('nx') + '=' + encodeURIComponent('37'); 
+  queryParams += '&' + encodeURIComponent('ny') + '=' + encodeURIComponent('126'); 
+*/ ;
+var _axios = require("axios");
+var _axiosDefault = parcelHelpers.interopDefault(_axios);
+// SERVER URL
+const BASE_URL = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0";
+const GET_ULTRA_SRT_NCST = "/getUltraSrtFcst";
+const SERVICE_KEY = "7RzOAYDkB9qRHVsXHVLPuEAUsikSSpD4YqMjJ47VbykQRu+GF6nvvmzo6K72vQ3aIJBHN/1p2uSVEhJm7B01BA==";
+// 격자 위경도 (기본값 사직동)
+let nx = 60;
+let ny = 127;
+// API 호출을 위한 Date 인스턴스
+const today = new Date();
+async function getWetherInfo(cb) {
     // 조회때문에 시간 먼저
     const time = getTime();
     const date = getToday();
@@ -627,7 +771,7 @@ async function getWetherInfo() {
             numOfRows: "1000",
             dataType: "JSON",
             base_date: date,
-            base_time: "2230",
+            base_time: time,
             nx: nx,
             ny: ny
         }
@@ -635,18 +779,41 @@ async function getWetherInfo() {
     const data = res.data;
     const items = data.response.body.items.item ?? [];
     console.log(items);
-    parseWeatherData(items);
+    const weatherInfo = parseWeatherData(items);
+    cb(weatherInfo);
 }
+function getToday() {
+    const month = today.getMonth() + 1 < 9 ? `0${today.getMonth() + 1}` : String(today.getMonth() + 1);
+    const day = today.getDate() < 9 ? `0${today.getDate()}` : String(today.getDate());
+    return `${today.getFullYear()}${month}${day}`;
+}
+function getTime() {
+    // 45분 이후 조회 가능
+    if (today.getMinutes() < 45) {
+        if (today.getHours() === 0) {
+            today.setDate(today.getDate() - 1);
+            today.setHours(23);
+        } else {
+            today.setHours(today.getHours() - 1);
+            today.setMinutes(30);
+        }
+    } else if (today.getMinutes() < 45) today.setMinutes(0);
+    let hours = today.getHours() < 9 ? `0${today.getHours()}` : String(today.getHours());
+    let minutes = today.getMinutes() < 9 ? `0${today.getMinutes()}` : String(today.getMinutes());
+    return hours + minutes;
+// 밤 테스트
+// return '0000';
+}
+// T1H : 기온
+// RN1 : 1시간 강수량
+// UUU : 동서바람성분 동(+표기), 서(-표기)
+// VVV : 남북바람성분 북(+표기), 남(-표기)
+// REH : 습도
+// PTY : 강수형태 (초단기) 없음(0), 비(1), 비/눈(2), 눈(3), 빗방울(5), 빗방울눈날림(6), 눈날림(7)
+// VEC : 풍향
+// WSD : 풍속
+// SKY : 하늘 상태  코드 : 맑음(1), 구름많음(3), 흐림(4)
 function parseWeatherData(datas) {
-    // T1H : 기온
-    // RN1 : 1시간 강수량
-    // UUU : 동서바람성분 동(+표기), 서(-표기)
-    // VVV : 남북바람성분 북(+표기), 남(-표기)
-    // REH : 습도
-    // PTY : 강수형태 (초단기) 없음(0), 비(1), 비/눈(2), 눈(3), 빗방울(5), 빗방울눈날림(6), 눈날림(7)
-    // VEC : 풍향
-    // WSD : 풍속
-    // SKY : 하늘 상태  코드 : 맑음(1), 구름많음(3), 흐림(4)
     // 현재 시간의 데이터만 추출
     const time = datas[0].fcstTime;
     const nowDatas = datas.filter((data)=>{
@@ -658,23 +825,7 @@ function parseWeatherData(datas) {
     nowDatas.forEach((data)=>{
         weatherInfo[data.category] = data.fcstValue;
     });
-    // 기온
-    tempEl.innerHTML = `${weatherInfo["T1H"]}` + "&#8451;";
-    imgEl.src = getIconByWeather(weatherInfo["SKY"], weatherInfo["PTY"], weatherInfo["LGT"], time);
-    // 강수량
-    percEl.innerHTML = weatherInfo["RN1"];
-    // 습도
-    humiEl.innerHTML = weatherInfo["REH"] + "%";
-    // 바람
-    windEl.innerHTML = `${parseWindDirection(weatherInfo["VEC"])} ${weatherInfo["WSD"]}m/s`;
-    setTimeout(()=>{
-        messageEl.classList.remove("show");
-        loadingEl.classList.toggle("show");
-        tempBoxEl.classList.toggle("show");
-        percBoxEl.classList.toggle("show");
-        humiBoxEl.classList.toggle("show");
-        windBoxEl.classList.toggle("show");
-    }, 2000);
+    return weatherInfo;
 }
 function getIconByWeather(sky, pty, lgt, time) {
     let imgSrc = "";
@@ -694,7 +845,7 @@ function getIconByWeather(sky, pty, lgt, time) {
     }
     return imgSrc;
 }
-function parseWindDirection(value) {
+function getWindDirection(value) {
     const convertValue = Math.floor((parseInt(value) + 11.25) / 22.5);
     let direction = "";
     console.log(convertValue);
@@ -743,48 +894,8 @@ function parseWindDirection(value) {
     }
     return direction;
 }
-function getToday() {
-    const month = today.getMonth() + 1 < 9 ? `0${today.getMonth() + 1}` : String(today.getMonth() + 1);
-    const day = today.getDate() < 9 ? `0${today.getDate()}` : String(today.getDate());
-    return `${today.getFullYear()}${month}${day}`;
-}
-function getTime() {
-    // 45분 이후 조회 가능
-    if (today.getMinutes() < 45) {
-        if (today.getHours() === 0) {
-            today.setDate(today.getDate() - 1);
-            today.setHours(23);
-        } else {
-            today.setHours(today.getHours() - 1);
-            today.setMinutes(30);
-        }
-    } else if (today.getMinutes() < 45) today.setMinutes(0);
-    let hours = today.getHours() < 9 ? `0${today.getHours()}` : String(today.getHours());
-    let minutes = today.getMinutes() < 9 ? `0${today.getMinutes()}` : String(today.getMinutes());
-    return hours + minutes;
-// 밤 테스트
-// return '0000';
-}
-function initTodayUI() {
-    const timeEl = document.querySelector("p.time");
-    timeEl.textContent = moment().format("LT");
-}
-initTodayUI();
-setInterval(()=>{
-    initTodayUI();
-}, 1000); /*
-  // queryString
-  let queryParams = '?' + encodeURIComponent('serviceKey') + '=' + `${SERVICE_KEY}`; 
-  queryParams += '&' + encodeURIComponent('pageNo') + '=' + encodeURIComponent('1'); 
-  queryParams += '&' + encodeURIComponent('numOfRows') + '=' + encodeURIComponent('1000'); 
-  queryParams += '&' + encodeURIComponent('dataType') + '=' + encodeURIComponent('JSON'); 
-  queryParams += '&' + encodeURIComponent('base_date') + '=' + encodeURIComponent('20230413'); 
-  queryParams += '&' + encodeURIComponent('base_time') + '=' + encodeURIComponent('0600');
-  queryParams += '&' + encodeURIComponent('nx') + '=' + encodeURIComponent('37'); 
-  queryParams += '&' + encodeURIComponent('ny') + '=' + encodeURIComponent('126'); 
-*/ 
 
-},{"axios":"jo6P5","./convert.js":"eHKSp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jo6P5":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","axios":"jo6P5"}],"jo6P5":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "default", ()=>(0, _axiosJsDefault.default));
@@ -1456,37 +1567,7 @@ function bind(fn, thisArg) {
 }
 exports.default = bind;
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports) {
-exports.interopDefault = function(a) {
-    return a && a.__esModule ? a : {
-        default: a
-    };
-};
-exports.defineInteropFlag = function(a) {
-    Object.defineProperty(a, "__esModule", {
-        value: true
-    });
-};
-exports.exportAll = function(source, dest) {
-    Object.keys(source).forEach(function(key) {
-        if (key === "default" || key === "__esModule" || dest.hasOwnProperty(key)) return;
-        Object.defineProperty(dest, key, {
-            enumerable: true,
-            get: function() {
-                return source[key];
-            }
-        });
-    });
-    return dest;
-};
-exports.export = function(dest, destName, get) {
-    Object.defineProperty(dest, destName, {
-        enumerable: true,
-        get: get
-    });
-};
-
-},{}],"cpqD8":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cpqD8":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _utilsJs = require("./../utils.js");
@@ -4934,71 +5015,6 @@ Object.entries(HttpStatusCode).forEach(([key, value])=>{
     HttpStatusCode[value] = key;
 });
 exports.default = HttpStatusCode;
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"eHKSp":[function(require,module,exports) {
-//
-// LCC DFS 좌표변환을 위한 기초 자료
-//
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-//
-// LCC DFS 좌표변환 ( code : "toXY"(위경도->좌표, v1:위도, v2:경도), "toLL"(좌표->위경도,v1:x, v2:y) )
-//
-parcelHelpers.export(exports, "dfs_xy_conv", ()=>dfs_xy_conv);
-var RE = 6371.00877; // 지구 반경(km)
-var GRID = 5.0; // 격자 간격(km)
-var SLAT1 = 30.0; // 투영 위도1(degree)
-var SLAT2 = 60.0; // 투영 위도2(degree)
-var OLON = 126.0; // 기준점 경도(degree)
-var OLAT = 38.0; // 기준점 위도(degree)
-var XO = 43; // 기준점 X좌표(GRID)
-var YO = 136; // 기1준점 Y좌표(GRID)
-function dfs_xy_conv(code, v1, v2) {
-    var DEGRAD = Math.PI / 180.0;
-    var RADDEG = 180.0 / Math.PI;
-    var re = RE / GRID;
-    var slat1 = SLAT1 * DEGRAD;
-    var slat2 = SLAT2 * DEGRAD;
-    var olon = OLON * DEGRAD;
-    var olat = OLAT * DEGRAD;
-    var sn = Math.tan(Math.PI * 0.25 + slat2 * 0.5) / Math.tan(Math.PI * 0.25 + slat1 * 0.5);
-    sn = Math.log(Math.cos(slat1) / Math.cos(slat2)) / Math.log(sn);
-    var sf = Math.tan(Math.PI * 0.25 + slat1 * 0.5);
-    sf = Math.pow(sf, sn) * Math.cos(slat1) / sn;
-    var ro = Math.tan(Math.PI * 0.25 + olat * 0.5);
-    ro = re * sf / Math.pow(ro, sn);
-    var rs = {};
-    if (code == "toXY") {
-        rs["lat"] = v1;
-        rs["lng"] = v2;
-        var ra = Math.tan(Math.PI * 0.25 + v1 * DEGRAD * 0.5);
-        ra = re * sf / Math.pow(ra, sn);
-        var theta = v2 * DEGRAD - olon;
-        if (theta > Math.PI) theta -= 2.0 * Math.PI;
-        if (theta < -Math.PI) theta += 2.0 * Math.PI;
-        theta *= sn;
-        rs["x"] = Math.floor(ra * Math.sin(theta) + XO + 0.5);
-        rs["y"] = Math.floor(ro - ra * Math.cos(theta) + YO + 0.5);
-    } else {
-        rs["x"] = v1;
-        rs["y"] = v2;
-        var xn = v1 - XO;
-        var yn = ro - v2 + YO;
-        ra = Math.sqrt(xn * xn + yn * yn);
-        if (sn < 0.0) ra;
-        var alat = Math.pow(re * sf / ra, 1.0 / sn);
-        alat = 2.0 * Math.atan(alat) - Math.PI * 0.5;
-        if (Math.abs(xn) <= 0.0) theta = 0.0;
-        else if (Math.abs(yn) <= 0.0) {
-            theta = Math.PI * 0.5;
-            if (xn < 0.0) theta;
-        } else theta = Math.atan2(xn, yn);
-        var alon = theta / sn + olon;
-        rs["lat"] = alat * RADDEG;
-        rs["lng"] = alon * RADDEG;
-    }
-    return rs;
-}
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["e11Rl","gLLPy"], "gLLPy", "parcelRequirec426")
 
