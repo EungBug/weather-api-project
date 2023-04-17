@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Mixed Content Error -->
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <title>Today Weather</title>
+    <link rel="shortcut icon" href="/d_sun.ec0abb98.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reset-css@5.0.1/reset.min.css">
+    <link rel="stylesheet" href="/index.af20ad6e.css">
+    <!-- fontawesome -->
+    <script src="https://kit.fontawesome.com/629e78e1fc.js" crossorigin="anonymous"></script>
+    <!-- 날짜 포맷팅 moment.js -->
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+    <script src="/index.4d6bcbeb.js" defer=""></script>
+  </head>
+  <body>
+    <h1>Today Weather</h1>
+
+    <input type="checkbox" id="toggle">
+
+    <div class="message">위치 정보를 불러올 수 없습니다.</div>
+    <div class="container">
+      <div class="info-box temp">
+        <p class="title"></p>
+        <p class="location">Seoul</p>
+        <img class="wether-img">
+        <p class="temperatures result">23&#8451;</p>
+      </div>
+
+      <div class="info-box prec">
+        <p class="title">강수량</p>
+        <img class="icon" src="/precipitation_icon.34c5dcec.png" alt="Precipitation">
+        <p class="precipitation result"></p>
+      </div>
+
+      <div class="info-box humi">
+        <p class="title">습도</p>
+        <img class="icon" src="/thermometer_icon.2efa81e0.png" alt="Humidity">
+        <p class="humidity result"></p>
+      </div>
+
+      <div class="info-box wind">
+        <p class="title">바람</p>
+        <img class="icon" src="/wind_icon.3b83fbf9.png" alt="Wind">
+        <p class="wind-value result"></p>
+      </div>
+
+      <div class="loading-bar">
+        <i class="fa-solid fa-spinner"></i>
+      </div>
+    </div>
+  </body>
+</html>

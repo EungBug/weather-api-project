@@ -81,7 +81,7 @@ function setWeatherInfo(weatherInfo, baseTime) {
 
 // 시간 출력
 function initTodayUI() {
-  const timeEl = document.querySelector('p.time');
+  const timeEl = tempBoxEl.querySelector('p.title');
 
   timeEl.textContent = moment().format('LT');
 }
