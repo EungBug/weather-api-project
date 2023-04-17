@@ -54,14 +54,14 @@ function getUserLocation() {
 // 응답을 파싱해서 UI에서 사용할 데이터로 가공한다.
 (() => {
   getUserLocation().then(() => {
-    getWetherInfo(weatherInfo => setWeatherInfo(weatherInfo));
+    getWetherInfo((weatherInfo, baseTime) => setWeatherInfo(weatherInfo, baseTime));
   });
 })();
 
-function setWeatherInfo(weatherInfo) {
+function setWeatherInfo(weatherInfo, baseTime) {
   // 기온
   tempEl.innerHTML = `${weatherInfo['T1H']}` + '&#8451;';
-  imgEl.src = getIconByWeather(weatherInfo['SKY'], weatherInfo['PTY'], weatherInfo['LGT'], weatherInfo['SKY'].fcstTime);
+  imgEl.src = getIconByWeather(weatherInfo['SKY'], weatherInfo['PTY'], weatherInfo['LGT'], baseTime);
   // 강수량
   percEl.innerHTML = weatherInfo['RN1'];
   // 습도

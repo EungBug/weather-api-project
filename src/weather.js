@@ -36,7 +36,7 @@ export async function getWetherInfo(cb) {
   const items = data.response.body.items.item ?? [];
   console.log(items);
   const weatherInfo = parseWeatherData(items);
-  cb(weatherInfo);
+  cb(weatherInfo, time);
 }
 
 function getToday() {
@@ -52,6 +52,7 @@ function getTime() {
     if (today.getHours() === 0) {
       today.setDate(today.getDate() - 1);
       today.setHours(23);
+      today.setMinutes(30);
     } else {
       today.setHours(today.getHours() - 1);
       today.setMinutes(30);
@@ -98,6 +99,7 @@ function parseWeatherData(datas) {
 
 export function getIconByWeather(sky, pty, lgt, time) {
   let imgSrc = '';
+  console.log('time : ', time);
   const dayFlag = parseInt(time) > 1800 || parseInt(time) < 600 ? 'N' : 'D';
 
   if (dayFlag === 'D') {

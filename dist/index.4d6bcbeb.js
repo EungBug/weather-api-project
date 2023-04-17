@@ -602,13 +602,13 @@ function getUserLocation() {
 // 응답을 파싱해서 UI에서 사용할 데이터로 가공한다.
 (()=>{
     getUserLocation().then(()=>{
-        (0, _weatherJs.getWetherInfo)((weatherInfo)=>setWeatherInfo(weatherInfo));
+        (0, _weatherJs.getWetherInfo)((weatherInfo, baseTime)=>setWeatherInfo(weatherInfo, baseTime));
     });
 })();
-function setWeatherInfo(weatherInfo) {
+function setWeatherInfo(weatherInfo, baseTime) {
     // 기온
     tempEl.innerHTML = `${weatherInfo["T1H"]}` + "&#8451;";
-    imgEl.src = (0, _weatherJs.getIconByWeather)(weatherInfo["SKY"], weatherInfo["PTY"], weatherInfo["LGT"], weatherInfo["SKY"].fcstTime);
+    imgEl.src = (0, _weatherJs.getIconByWeather)(weatherInfo["SKY"], weatherInfo["PTY"], weatherInfo["LGT"], baseTime);
     // 강수량
     percEl.innerHTML = weatherInfo["RN1"];
     // 습도
@@ -780,7 +780,7 @@ async function getWetherInfo(cb) {
     const items = data.response.body.items.item ?? [];
     console.log(items);
     const weatherInfo = parseWeatherData(items);
-    cb(weatherInfo);
+    cb(weatherInfo, time);
 }
 function getToday() {
     const month = today.getMonth() + 1 < 9 ? `0${today.getMonth() + 1}` : String(today.getMonth() + 1);
@@ -793,6 +793,7 @@ function getTime() {
         if (today.getHours() === 0) {
             today.setDate(today.getDate() - 1);
             today.setHours(23);
+            today.setMinutes(30);
         } else {
             today.setHours(today.getHours() - 1);
             today.setMinutes(30);
@@ -829,6 +830,7 @@ function parseWeatherData(datas) {
 }
 function getIconByWeather(sky, pty, lgt, time) {
     let imgSrc = "";
+    console.log("time : ", time);
     const dayFlag = parseInt(time) > 1800 || parseInt(time) < 600 ? "N" : "D";
     if (dayFlag === "D") {
         if (lgt !== "0") imgSrc = "/d_storm.png";
@@ -895,7 +897,7 @@ function getWindDirection(value) {
     return direction;
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","axios":"jo6P5"}],"jo6P5":[function(require,module,exports) {
+},{"axios":"jo6P5","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jo6P5":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "default", ()=>(0, _axiosJsDefault.default));
@@ -1840,7 +1842,7 @@ var _axiosErrorJsDefault = parcelHelpers.interopDefault(_axiosErrorJs);
 // temporary hotfix to avoid circular references until AxiosURLSearchParams is refactored
 var _formDataJs = require("../platform/node/classes/FormData.js");
 var _formDataJsDefault = parcelHelpers.interopDefault(_formDataJs);
-var Buffer = require("59e766b82bda2deb").Buffer;
+var Buffer = require("67a289814e4a44c2").Buffer;
 "use strict";
 /**
  * Determines if the given thing is a array or js object.
@@ -1995,15 +1997,15 @@ const predicates = (0, _utilsJsDefault.default).toFlatObject((0, _utilsJsDefault
 }
 exports.default = toFormData;
 
-},{"59e766b82bda2deb":"fCgem","../utils.js":"5By4s","../core/AxiosError.js":"3u8Tl","../platform/node/classes/FormData.js":"aFlee","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"fCgem":[function(require,module,exports) {
+},{"67a289814e4a44c2":"fCgem","../utils.js":"5By4s","../core/AxiosError.js":"3u8Tl","../platform/node/classes/FormData.js":"aFlee","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"fCgem":[function(require,module,exports) {
 /*!
  * The buffer module from node.js, for the browser.
  *
  * @author   Feross Aboukhadijeh <https://feross.org>
  * @license  MIT
  */ /* eslint-disable no-proto */ "use strict";
-var base64 = require("69630339345ffb53");
-var ieee754 = require("45baf2bbd2571afc");
+var base64 = require("1bea79bf65e403da");
+var ieee754 = require("429f16a48a250500");
 var customInspectSymbol = typeof Symbol === "function" && typeof Symbol["for"] === "function" // eslint-disable-line dot-notation
  ? Symbol["for"]("nodejs.util.inspect.custom") // eslint-disable-line dot-notation
  : null;
@@ -3225,7 +3227,7 @@ var hexSliceLookupTable = function() {
     return table;
 }();
 
-},{"69630339345ffb53":"eIiSV","45baf2bbd2571afc":"cO95r"}],"eIiSV":[function(require,module,exports) {
+},{"1bea79bf65e403da":"eIiSV","429f16a48a250500":"cO95r"}],"eIiSV":[function(require,module,exports) {
 "use strict";
 exports.byteLength = byteLength;
 exports.toByteArray = toByteArray;
