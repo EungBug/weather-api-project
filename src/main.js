@@ -4,6 +4,10 @@ import { getWetherInfo, getIconByWeather, getWindDirection } from './weather.js'
 // moment.js 로케일 설정
 moment.locale('en');
 
+// 격자 위경도 (기본값 사직동)
+let nx = 60;
+let ny = 127;
+
 const messageEl = document.querySelector('.message');
 const tempBoxEl = document.querySelector('.info-box.temp');
 const percBoxEl = document.querySelector('.info-box.prec');
@@ -54,7 +58,7 @@ function getUserLocation() {
 // 응답을 파싱해서 UI에서 사용할 데이터로 가공한다.
 (() => {
   getUserLocation().then(() => {
-    getWetherInfo((weatherInfo, baseTime) => setWeatherInfo(weatherInfo, baseTime));
+    getWetherInfo(nx, ny, (weatherInfo, baseTime) => setWeatherInfo(weatherInfo, baseTime));
   });
 })();
 

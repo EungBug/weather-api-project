@@ -2,23 +2,19 @@ import axios from 'axios';
 
 // SERVER URL
 const BASE_URL = 'https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0';
-const GET_ULTRA_SRT_NCST = '/getUltraSrtFcst';
+const GET_ULTRA_SRT_FCST = '/getUltraSrtFcst';
 const SERVICE_KEY = '7RzOAYDkB9qRHVsXHVLPuEAUsikSSpD4YqMjJ47VbykQRu+GF6nvvmzo6K72vQ3aIJBHN/1p2uSVEhJm7B01BA==';
-
-// 격자 위경도 (기본값 사직동)
-let nx = 60;
-let ny = 127;
 
 // API 호출을 위한 Date 인스턴스
 const today = new Date();
 
 // API를 통해 정보를 받아오기
-export async function getWetherInfo(cb) {
+export async function getWetherInfo(nx, ny, cb) {
   // 조회때문에 시간 먼저
   const time = getTime();
   const date = getToday();
   const res = await axios({
-    url: `${BASE_URL}${GET_ULTRA_SRT_NCST}`,
+    url: `${BASE_URL}${GET_ULTRA_SRT_FCST}`,
     method: 'GET',
     params: {
       serviceKey: `${SERVICE_KEY}`,
@@ -31,8 +27,9 @@ export async function getWetherInfo(cb) {
       ny: ny
     }
   });
-
+  console.log(time);
   const data = res.data;
+  console.log(data.response);
   const items = data.response.body.items.item ?? [];
   console.log(items);
   const weatherInfo = parseWeatherData(items);
